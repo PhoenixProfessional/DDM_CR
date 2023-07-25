@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Book Listing App</title>
+    <style>
+      /* Add your CSS styles here */
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <input type="text" v-model="searchQuery" @keyup.enter="searchBooks" />
+      <button @click="searchBooks">Search</button>
+
+      <div v-if="loading">Loading...</div>
+
+      <ul v-if="!loading && books.length">
+        <li v-for="book in books" :key="book.id">
+          <h2>{{ book.title }}</h2>
+          <p>Author: {{ book.author }}</p>
+          <img :src="book.image" alt="Book Cover" />
+        </li>
+      </ul>
+
+      <div v-if="!loading && !books.length">No results found.</div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <!-- Add Axios library -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+      new Vue({
+        el: '#app',
+        data: {
+          searchQuery: '',
+          loading: false,
+          books: [],
+        },
+        methods: {
+          searchBooks() {
+            this.loading = true;
+            axios
+              .get('http://book-listing-backend.phoenixjones3.repl.co/api/search?query=${encodeURIComponent(this.searchQuery)}&page=1')
+              .then((response) => {
+                this.books = response.data;
+              })
+              .catch((error) => {
+                console.error(error);
+                this.books = [];
+              })
+              .finally(() => {
+                this.loading = false;
+              });
+          },
+        },
+      });
+    </script>
+</body>
+</html>
